@@ -1,32 +1,23 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <form>
+      <button @click="addTodo()">Add Task</button>
+      <button @click="removeTodo()">Delete Finished Tasks</button>
+      <p>input: <input type="text" v-model="newTodo"></p>
+      <p>task: {{ newTodo }}</p>
+    </form>
+    <div class="task-list">
+      <label class="task_list_item"
+             v-for="todo in todos"
+            :key="todo.id"
+            :class="{ 'task_list_item--checked': todo.done }">
+        <input type="checkbox" v-model="todo.done">
+        <input type="checkbox" v-model="todo.editing">
+        <input v-if="todo.editing" v-model="todo.text" @keyup.enter="todo.editing = !todo.editing">
+        <span v-else>{{ todo.text }}</span>
+      </label>
+    </div>
   </div>
 </template>
 
@@ -35,24 +26,62 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data () {
+    return {
+      todos: [
+        {text: 'vue-router', done: false, editing: false},
+        {text: 'vuex', done: false, editing: false},
+        {text: 'vue-loader', done: false, editing: false},
+        {text: 'awesome-vue', done: true, editing: false},
+      ],
+      newTodo: "",
+    }
+  },
+  methods: {
+    addTodo: function() {
+      let text = this.newTodo && this.newTodo.trim()
+      if (!text) {
+        return
+      }
+      this.todos.push({
+        text: text,
+        done: false,
+        editing: false,
+      })
+      this.newTodo = ""
+    },
+    removeTodo: function() {
+      for (let i = this.todos.lentgh - 1; i >= 0; i--) {
+        if (this.todos[i].done) this.todos.splice(i, 1)
+      }
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style lang="scss" scoped>
+@mixin flex-vender() {
+  display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: -o-flex;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.task-list {
+  @include flex-vender;
+  flex-direction: column;
+  align-items: center;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+.task_list_item {
+  width: 270px;
+  text-align: left;
+  $element: #{&};
+  &--checked {
+    @extend #{$element};
+    color: #85a6c6;
+  }
 }
-a {
-  color: #42b983;
-}
+
 </style>
